@@ -10,6 +10,9 @@ import argparse
 DEFAULT_DIR = "images/"
 
 def getImg(url):
+    """ Parses an url into a dict.
+        Retrieves image url, date and image text.
+     """
     searchStr = "var currentFullsizeImage = "
     dateStr = "var thisDate = "
     yearStr = "var thisYear = "
@@ -36,6 +39,7 @@ def getImg(url):
     return d
 
 def getNextUrl(url):
+    """ Parses url for the next image """
     searchStr = "class=\"nextDayHref navigationNav icon\">"
     takeNext = False
     r = requests.get(url, stream=True)
@@ -44,27 +48,27 @@ def getNextUrl(url):
             takeNext = True
         elif takeNext is True:
             return l.split("\"")[1]
-    return "not found"
+    return None
 
 def getListOfAll(startUrl):
     """ Returns a list with all images, starting at startUrl. """
     arr = []
     arr.append(getImg(startUrl))
     nexturl = getNextUrl(startUrl)
-    while nexturl != "not found":
+    while nexturl is not None:
         arr.append(getImg(nexturl))
         nexturl = getNextUrl(nexturl)
-    return arr[:-1]
+    return arr[:-1] # Skip the last one that is void
 
 def prettyPrint(img):
+    """ Very pretty printing. """
     print(img['date'])
     print(img['url'])
     print(img['text'])
     print("\n")
 
 def saveImage(img, folder, save_text=False):
-    """
-        Saves an image to disk.
+    """ Saves an image to disk.
         Filename is on the form YYYY-MM-DD[-#N].jpg
     """
     num = 0
