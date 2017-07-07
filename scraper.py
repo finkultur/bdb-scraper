@@ -9,14 +9,14 @@ import simplejson as json
 
 DEFAULT_DIR = "images/"
 
-def get_img(url):
+def get_img(url, session):
     """ Parses an url into a dict.
         Retrieves image url, date and image text.
      """
     search_str = "var currentFullsizeImage = "
     date_str = "var thisDate = "
     year_str = "var thisYear = "
-    req = requests.get(url, stream=True)
+    req = session.get(url, stream=True)
     img = {'url': "", 'date': "", 'text': ""}
     year, month, day = "0", "0", "0"
 
@@ -38,11 +38,11 @@ def get_img(url):
     img['date'] = year + "-" + month + "-" + day
     return img
 
-def get_next_url(url):
+def get_next_url(url, session):
     """ Parses url for the next image """
     search_str = "class=\"nextDayHref navigationNav icon\">"
     take_next = False
-    req = requests.get(url, stream=True)
+    req = session.get(url, stream=True)
     for line in req.iter_lines():
         if search_str in line:
             take_next = True
@@ -50,14 +50,14 @@ def get_next_url(url):
             return line.split("\"")[1]
     return None
 
-def get_list_of_all(start_url):
+def get_list_of_all(start_url, session):
     """ Returns a list with all images, starting at start_url. """
     arr = []
-    arr.append(get_img(start_url))
-    nexturl = get_next_url(start_url)
+    arr.append(get_img(start_url, session))
+    nexturl = get_next_url(start_url, session)
     while nexturl is not None:
-        arr.append(get_img(nexturl))
-        nexturl = get_next_url(nexturl)
+        arr.append(get_img(nexturl, session))
+        nexturl = get_next_url(nexturl, session)
     return arr[:-1] # Skip the last one that is void
 
 def pretty_print(img):
@@ -82,26 +82,47 @@ def save_image(img, folder, save_text=False):
             txtfile.write(img['text'])
 
 if __name__ == '__main__':
+    # Parse command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("start_url")
-    parser.add_argument("-o", "--only-print", action="store_true", default=False,
-                        help="Only print url/date/text")
-    parser.add_argument("-p", "--path", type=str, default="images/",
+    parser.add_argument("-o", "--only-print", action="store_true", 
+                        default=False, help="Only print url/date/text")
+    parser.add_argument("-d", "--dest", type=str, default="images/",
                         help="Where to save files. (default = images/)")
     parser.add_argument("-t", "--save-text", action="store_true", default=True,
                         help="Save image text")
+    parser.add_argument("-u", "--username", type=str,
+                        help="Your username")
+    parser.add_argument("-p", "--password", type=str,
+                        help="Your password")
     args = parser.parse_args()
 
-    requests_cache.install_cache('bdb_search_cache')
+    # Login
+    session = requests.Session()
+    if args.username and args.password:
+        print("Got user/pass")
+        payload = { 'action': 'login',
+                    'user': args.username,
+                    'pass': args.password,
+                    'crosslogin': 0,
+                    'bdbhdCampaign': 0,
+                    'topLoginNoJScript': 0,
+                    'ajaxlogin': 1,
+                    'doIframeLogin': 0,
+                    'json': 1 }
+        req0 = session.get("http://dayviews.com/")
+        req = session.post("http://dayviews.com/", data=payload)
+    else: # The cache messes with the login, so we only use it when anonymous
+        requests_cache.install_cache('bdb_search_cache')
 
     if not args.only_print:
-        save_dir = args.path if args.path else DEFAULT_DIR
+        save_dir = args.dest if args.dest else DEFAULT_DIR
         if save_dir[-1:] != '/': save_dir += '/'
         print "Saving images in " + save_dir
     if args.start_url is not None:
         print "Starting URL is " + args.start_url
 
-    all_images = get_list_of_all(args.start_url)
+    all_images = get_list_of_all(args.start_url, session)
     print("Parsed all entries.")
 
     if args.only_print:

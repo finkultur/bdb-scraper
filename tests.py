@@ -1,11 +1,13 @@
 #!/usr/bin/python
 
 import unittest
+import requests
 from scraper import *
 
 class TestStuff(unittest.TestCase):
     def setUp(self):
-        self.img = get_img("http://dayviews.com/finkultur/195730454/")
+        self.session = requests.Session()
+        self.img = get_img("http://dayviews.com/finkultur/195730454/", self.session)
 
     def test_image_url(self):
         self.assertEqual(self.img['url'],
@@ -20,7 +22,8 @@ class TestStuff(unittest.TestCase):
                          "2008-4-19")
 
     def test_get_next_url(self):
-        self.assertEqual(get_next_url("http://dayviews.com/finkultur/36850186/"),
+        self.assertEqual(get_next_url("http://dayviews.com/finkultur/36850186/",
+                         self.session),
                          "http://dayviews.com/finkultur/37715304/")
  
 if __name__ == '__main__':
