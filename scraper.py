@@ -5,7 +5,7 @@ import requests
 import simplejson as json
 
 
-def getUrl(url):
+def getImgUrl(url):
     searchStr = "var currentFullsizeImage = "
     r = requests.get(url, stream=True)
     for l in r.iter_lines():
@@ -28,14 +28,14 @@ def getNextUrl(url):
     return "not found"
 
 if __name__ == '__main__':
-    #print getUrl("http://dayviews.com/finkultur/36850186/")
+    #print getImgUrl("http://dayviews.com/finkultur/36850186/")
     #print getNextUrl("http://dayviews.com/finkultur/36850186/")
 
     if len(sys.argv) != 2:
         sys.exit(1)
 
     url = sys.argv[1]
-    print getUrl(url)
+    print getImgUrl(url)
 
     nexturl = getNextUrl(url)
     while nexturl != "not found":
