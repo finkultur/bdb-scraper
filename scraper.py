@@ -4,10 +4,9 @@ import sys
 import requests
 import simplejson as json
 
-searchStr = "var currentFullsizeImage = "
 
 def getUrl(url):
-
+    searchStr = "var currentFullsizeImage = "
     r = requests.get(url, stream=True)
     for l in r.iter_lines():
         if searchStr in l:
@@ -18,8 +17,17 @@ def getUrl(url):
     return "not found"
 
 def getNextUrl(url):
-    return "not implemented"
+    searchStr = "class=\"nextDayHref navigationNav icon\">"
+    takeNext = False
+    r = requests.get(url, stream=True)
+    for l in r.iter_lines():
+        if searchStr in l:
+            takeNext = True
+        elif takeNext is True:
+            return l.split("\"")[1]
+    return "not found"
 
 if __name__ == '__main__':
-    print getUrl("http://dayviews.com/finkultur/36850186/")
+    #print getUrl("http://dayviews.com/finkultur/36850186/")
+    print getNextUrl("http://dayviews.com/finkultur/36850186/")
 
