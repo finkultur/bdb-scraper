@@ -4,7 +4,7 @@
 import os
 import argparse
 import urllib
-import requests
+import requests, requests_cache
 import simplejson as json
 
 DEFAULT_DIR = "images/"
@@ -91,6 +91,8 @@ if __name__ == '__main__':
     parser.add_argument("-t", "--save-text", action="store_true", default=True,
                         help="Save image text")
     args = parser.parse_args()
+
+    requests_cache.install_cache('bdb_search_cache')
 
     if not args.only_print:
         save_dir = args.path if args.path else DEFAULT_DIR

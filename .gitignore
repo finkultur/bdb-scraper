@@ -4,3 +4,5 @@
 *.html
 *.jpg
 *.png
+*.sqlite
+*/
