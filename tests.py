@@ -5,7 +5,7 @@ from scraper import *
 
 class TestStuff(unittest.TestCase):
     def setUp(self):
-        self.img = getImg("http://dayviews.com/finkultur/195730454/")
+        self.img = get_img("http://dayviews.com/finkultur/195730454/")
 
     def test_image_url(self):
         self.assertEqual(self.img['url'],
@@ -20,7 +20,7 @@ class TestStuff(unittest.TestCase):
                          "2008-4-19")
 
     def test_get_next_url(self):
-        self.assertEqual(getNextUrl("http://dayviews.com/finkultur/36850186/"),
+        self.assertEqual(get_next_url("http://dayviews.com/finkultur/36850186/"),
                          "http://dayviews.com/finkultur/37715304/")
  
 if __name__ == '__main__':

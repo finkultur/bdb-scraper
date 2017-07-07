@@ -1,73 +1,73 @@
 #!/usr/bin/python
+""" This module scrapes dayviews for images. """
 
-import sys
 import os
-import requests
-import urllib
-import simplejson as json
 import argparse
+import urllib
+import requests
+import simplejson as json
 
 DEFAULT_DIR = "images/"
 
-def getImg(url):
+def get_img(url):
     """ Parses an url into a dict.
         Retrieves image url, date and image text.
      """
-    searchStr = "var currentFullsizeImage = "
-    dateStr = "var thisDate = "
-    yearStr = "var thisYear = "
-    r = requests.get(url, stream=True)
-    d = {'url': "", 'date': "", 'text': ""}
-    year, month, day = "0","0","0"
+    search_str = "var currentFullsizeImage = "
+    date_str = "var thisDate = "
+    year_str = "var thisYear = "
+    req = requests.get(url, stream=True)
+    img = {'url': "", 'date': "", 'text': ""}
+    year, month, day = "0", "0", "0"
 
-    for l in r.iter_lines():
-        if searchStr in l:
-            data = l[len(searchStr):-1]
-            j = json.loads(data)
-            d['url'] = j['fullsizeSrc']
-            d['text'] = j['strippedText']
-        elif dateStr in l:
-            x = l[:-2].split('month')[1].split('day') # Sorry not sorry
-            month = x[0]
-            day = x[1]
-        elif yearStr in l:
+    for line in req.iter_lines():
+        if search_str in line:
+            data = line[len(search_str):-1]
+            json_data = json.loads(data)
+            img['url'] = json_data['fullsizeSrc']
+            img['text'] = json_data['strippedText']
+        elif date_str in line:
+            date = line[:-2].split('month')[1].split('day') # Sorry not sorry
+            month = date[0]
+            day = date[1]
+        elif year_str in line:
             # Will not work after year 9999.
             # Fortunately, dayviews closes sometime in 2017.
-            year = l[-6:-2]
+            year = line[-6:-2]
 
-    d['date'] = year + "-" + month + "-" + day
-    return d
+    img['date'] = year + "-" + month + "-" + day
+    return img
 
-def getNextUrl(url):
+def get_next_url(url):
     """ Parses url for the next image """
-    searchStr = "class=\"nextDayHref navigationNav icon\">"
-    takeNext = False
-    r = requests.get(url, stream=True)
-    for l in r.iter_lines():
-        if searchStr in l:
-            takeNext = True
-        elif takeNext is True:
-            return l.split("\"")[1]
+    search_str = "class=\"nextDayHref navigationNav icon\">"
+    take_next = False
+    req = requests.get(url, stream=True)
+    for line in req.iter_lines():
+        if search_str in line:
+            take_next = True
+        elif take_next is True:
+            return line.split("\"")[1]
     return None
 
-def getListOfAll(startUrl):
-    """ Returns a list with all images, starting at startUrl. """
+def get_list_of_all(start_url):
+    """ Returns a list with all images, starting at start_url. """
     arr = []
-    arr.append(getImg(startUrl))
-    nexturl = getNextUrl(startUrl)
+    arr.append(get_img(start_url))
+    nexturl = get_next_url(start_url)
     while nexturl is not None:
-        arr.append(getImg(nexturl))
-        nexturl = getNextUrl(nexturl)
+        arr.append(get_img(nexturl))
+        nexturl = get_next_url(nexturl)
     return arr[:-1] # Skip the last one that is void
 
-def prettyPrint(img):
+def pretty_print(img):
     """ Very pretty printing. """
     print(img['date'])
     print(img['url'])
     print(img['text'])
     print("\n")
 
-def saveImage(img, folder, save_text=False):
+def save_image(img, folder, save_text=False):
     """ Saves an image to disk.
         Filename is on the form YYYY-MM-DD[-#N].jpg
     """
@@ -77,12 +77,13 @@ def saveImage(img, folder, save_text=False):
         num += 1
         path = folder + img['date'] + "-#" + str(num)
     urllib.urlretrieve(img['url'], path + ".jpg")
-    with open(path + ".txt", 'w') as txtfile:
-        txtfile.write(img['text'])
+    if save_text:
+        with open(path + ".txt", 'w') as txtfile:
+            txtfile.write(img['text'])
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("startUrl")
+    parser.add_argument("start_url")
     parser.add_argument("-s", "--save", action="store_true",
                         help="Save files to directory")
     parser.add_argument("-p", "--path", type=str, default="images/",
@@ -95,19 +96,19 @@ if __name__ == '__main__':
         save_dir = args.path if args.path else DEFAULT_DIR
         if save_dir[-1:] != '/': save_dir += '/'
         print "Saving images in " + save_dir
-    if args.startUrl is not None:
-        print "Starting URL is " + args.startUrl
+    if args.start_url is not None:
+        print "Starting URL is " + args.start_url
 
-    a = getListOfAll(args.startUrl)
+    all_images = get_list_of_all(args.start_url)
     print("Parsed all entries.")
 
     if not args.save:
-       for img in a:
-           prettyPrint(img)
+        for image in all_images:
+            pretty_print(image)
     else:
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
-        for img in a:
-            saveImage(img, save_dir, args.save_text)
-        print("Saved " + str(len(a)) + " images to " + save_dir)
+        for image in all_images:
+            save_image(image, save_dir, args.save_text)
+        print("Saved " + str(len(all_images)) + " images to " + save_dir)
 
