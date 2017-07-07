@@ -92,7 +92,7 @@ if __name__ == '__main__':
                         help="Save image text")
     args = parser.parse_args()
 
-    if args.save:
+    if not args.only_print:
         save_dir = args.path if args.path else DEFAULT_DIR
         if save_dir[-1:] != '/': save_dir += '/'
         print "Saving images in " + save_dir
