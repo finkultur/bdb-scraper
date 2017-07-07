@@ -29,5 +29,16 @@ def getNextUrl(url):
 
 if __name__ == '__main__':
     #print getUrl("http://dayviews.com/finkultur/36850186/")
-    print getNextUrl("http://dayviews.com/finkultur/36850186/")
+    #print getNextUrl("http://dayviews.com/finkultur/36850186/")
+
+    if len(sys.argv) != 2:
+        sys.exit(1)
+
+    url = sys.argv[1]
+    print getUrl(url)
+
+    nexturl = getNextUrl(url)
+    while nexturl != "not found":
+        print getUrl(nexturl)
+        nexturl = getNextUrl(nexturl)         
 
