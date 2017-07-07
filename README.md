@@ -3,6 +3,15 @@ Fetches all your public stuff from dayviews/bilddagboken.
 Hurry 'cause it will close 2017-09-01.
 Beware that it could take a while to do this.
 
+## Prerequisites
+Git, Python2.7, pip
+
+## Installation
+```
+clone repo
+pip install -r requirements.txt
+```
+
 ## Usage
 ```
 scraper.py [-h] [-o] [-d DEST] [-t] [-u USERNAME] [-p PASSWORD]
