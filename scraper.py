@@ -3,6 +3,7 @@
 import sys
 import requests
 import simplejson as json
+import argparse
 
 
 def getImg(url):
@@ -22,12 +23,12 @@ def getImg(url):
 
         elif dateStr in l:
             x = l[:-2].split('month')[1].split('day') # Sorry not sorry
-            d['date'][1] = int(x[0])
-            d['date'][2] = int(x[1])
+            d['date'][1] = x[0]
+            d['date'][2] = x[1]
         elif yearStr in l:
             # Will not work after year 9999.
             # Fortunately, dayviews closes sometime in 2017.
-            d['date'][0] = int(l[-6:-2])
+            d['date'][0] = l[-6:-2]
     return d
 
 def getNextUrl(url):
@@ -53,14 +54,43 @@ def getListOfAll(startUrl):
         nexturl = getNextUrl(nexturl)
     return arr[:-1]
 
+def prettyPrint(img):
+    print(img['date'][0] + "-" + img['date'][1] + "-" + img['date'][2])
+    print(img['url'])
+    print(img['text'])
+    print("\n")
+
+def saveImage(img):
+    pass
+
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         sys.exit(1)
 
-    url = sys.argv[1]
-    a = getListOfAll(url)
-    for pic in a:
-        print pic
-    print("Got " + str(len(a)) + " entries.")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("startUrl")
+    parser.add_argument("-s", "--save", type=str,
+                        help="Save files to directory")
+    args = parser.parse_args()
+
+    if args.save:
+        print "Saving images in " + args.save
+    if args.startUrl is not None:
+        print "starturl is " + args.startUrl
+
+    a = getListOfAll(args.startUrl)
+
+    if not args.save:
+       for pic in a:
+           prettyPrint(pic)
+    else:
+        for pic in a:
+            saveImage(img)
+
+    #url = sys.argv[1]
+    #a = getListOfAll(url)
+    #for pic in a:
+    #    print pic
+    #print("Got " + str(len(a)) + " entries.")
 
 

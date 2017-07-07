@@ -17,7 +17,7 @@ class TestStuff(unittest.TestCase):
 
     def test_image_date(self):
         self.assertEqual(self.img['date'],
-                         [2008, 4, 19])
+                         ["2008", "4", "19"])
 
     def test_get_next_url(self):
         self.assertEqual(getNextUrl("http://dayviews.com/finkultur/36850186/"),
