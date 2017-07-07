@@ -32,8 +32,10 @@ def getImg(url):
 
 def getNextUrl(url):
     searchStr = "class=\"nextDayHref navigationNav icon\">"
+
     takeNext = False
     r = requests.get(url, stream=True)
+
     for l in r.iter_lines():
         if searchStr in l:
             takeNext = True
@@ -41,18 +43,24 @@ def getNextUrl(url):
             return l.split("\"")[1]
     return "not found"
 
-if __name__ == '__main__':
-    print getImg("http://dayviews.com/finkultur/36850186/")
-    #print getNextUrl("http://dayviews.com/finkultur/36850186/")
+def getListOfAll(startUrl):
+    """ Returns a list with all images, starting at startUrl. """
+    arr = []
+    arr.append(getImg(startUrl))
+    nexturl = getNextUrl(startUrl)
+    while nexturl != "not found":
+        arr.append(getImg(nexturl))
+        nexturl = getNextUrl(nexturl)
+    return arr[:-1]
 
+if __name__ == '__main__':
     if len(sys.argv) != 2:
         sys.exit(1)
 
     url = sys.argv[1]
-    print getImgUrl(url)
+    a = getListOfAll(url)
+    for pic in a:
+        print pic
+    print("Got " + str(len(a)) + " entries.")
 
-    nexturl = getNextUrl(url)
-    while nexturl != "not found":
-        print getUrl(nexturl)
-        nexturl = getNextUrl(nexturl)         
 
