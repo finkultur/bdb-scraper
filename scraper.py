@@ -84,11 +84,11 @@ def save_image(img, folder, save_text=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("start_url")
-    parser.add_argument("-s", "--save", action="store_true",
-                        help="Save files to directory")
+    parser.add_argument("-o", "--only-print", action="store_true", default=False,
+                        help="Only print url/date/text")
     parser.add_argument("-p", "--path", type=str, default="images/",
-                        help="Where to save files")
-    parser.add_argument("-t", "--save-text", action="store_true",
+                        help="Where to save files. (default = images/)")
+    parser.add_argument("-t", "--save-text", action="store_true", default=True,
                         help="Save image text")
     args = parser.parse_args()
 
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     all_images = get_list_of_all(args.start_url)
     print("Parsed all entries.")
 
-    if not args.save:
+    if args.only_print:
         for image in all_images:
             pretty_print(image)
     else:
