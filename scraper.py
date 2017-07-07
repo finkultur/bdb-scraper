@@ -17,6 +17,9 @@ def getUrl(url):
 
     return "not found"
 
+def getNextUrl(url):
+    return "not implemented"
+
 if __name__ == '__main__':
     print getUrl("http://dayviews.com/finkultur/36850186/")
 
