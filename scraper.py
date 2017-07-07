@@ -57,22 +57,24 @@ def getListOfAll(startUrl):
     return arr[:-1]
 
 def prettyPrint(img):
-    print(img['date'][0] + "-" + img['date'][1] + "-" + img['date'][2])
+    print(img['date'])
     print(img['url'])
     print(img['text'])
     print("\n")
 
-def saveImage(img, folder):
+def saveImage(img, folder, save_text=False):
     """
         Saves an image to disk.
         Filename is on the form YYYY-MM-DD[-#N].jpg
     """
     num = 0
-    path = folder + img['date'] + '-#' + str(num) + ".jpg"
+    path = folder + img['date'] + '-#' + str(num)
     while (os.path.isfile(path)):
         num += 1
-        path = folder + img['date'] + "-#" + str(num) + ".jpg"
-    urllib.urlretrieve(img['url'], path)
+        path = folder + img['date'] + "-#" + str(num)
+    urllib.urlretrieve(img['url'], path + ".jpg")
+    with open(path + ".txt", 'w') as txtfile:
+        txtfile.write(img['text'])
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -81,10 +83,13 @@ if __name__ == '__main__':
                         help="Save files to directory")
     parser.add_argument("-p", "--path", type=str, default="images/",
                         help="Where to save files")
+    parser.add_argument("-t", "--save-text", action="store_true",
+                        help="Save image text")
     args = parser.parse_args()
 
     if args.save:
         save_dir = args.path if args.path else DEFAULT_DIR
+        if save_dir[-1:] != '/': save_dir += '/'
         print "Saving images in " + save_dir
     if args.startUrl is not None:
         print "Starting URL is " + args.startUrl
@@ -99,5 +104,6 @@ if __name__ == '__main__':
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         for img in a:
-            saveImage(img, save_dir)
+            saveImage(img, save_dir, args.save_text)
+        print("Saved " + str(len(a)) + " images to " + save_dir)
 
