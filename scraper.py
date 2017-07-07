@@ -1,18 +1,21 @@
 #!/usr/bin/python
 
 import sys
+import os
 import requests
+import urllib
 import simplejson as json
 import argparse
 
+DEFAULT_DIR = "images/"
 
 def getImg(url):
     searchStr = "var currentFullsizeImage = "
     dateStr = "var thisDate = "
     yearStr = "var thisYear = "
-
     r = requests.get(url, stream=True)
-    d = {'url': "", 'date': [0,0,0], 'text': ""}
+    d = {'url': "", 'date': "", 'text': ""}
+    year, month, day = "0","0","0"
 
     for l in r.iter_lines():
         if searchStr in l:
@@ -20,23 +23,22 @@ def getImg(url):
             j = json.loads(data)
             d['url'] = j['fullsizeSrc']
             d['text'] = j['strippedText']
-
         elif dateStr in l:
             x = l[:-2].split('month')[1].split('day') # Sorry not sorry
-            d['date'][1] = x[0]
-            d['date'][2] = x[1]
+            month = x[0]
+            day = x[1]
         elif yearStr in l:
             # Will not work after year 9999.
             # Fortunately, dayviews closes sometime in 2017.
-            d['date'][0] = l[-6:-2]
+            year = l[-6:-2]
+
+    d['date'] = year + "-" + month + "-" + day
     return d
 
 def getNextUrl(url):
     searchStr = "class=\"nextDayHref navigationNav icon\">"
-
     takeNext = False
     r = requests.get(url, stream=True)
-
     for l in r.iter_lines():
         if searchStr in l:
             takeNext = True
@@ -60,37 +62,42 @@ def prettyPrint(img):
     print(img['text'])
     print("\n")
 
-def saveImage(img):
-    pass
+def saveImage(img, folder):
+    """
+        Saves an image to disk.
+        Filename is on the form YYYY-MM-DD[-#N].jpg
+    """
+    num = 0
+    path = folder + img['date'] + '-#' + str(num) + ".jpg"
+    while (os.path.isfile(path)):
+        num += 1
+        path = folder + img['date'] + "-#" + str(num) + ".jpg"
+    urllib.urlretrieve(img['url'], path)
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        sys.exit(1)
-
     parser = argparse.ArgumentParser()
     parser.add_argument("startUrl")
-    parser.add_argument("-s", "--save", type=str,
+    parser.add_argument("-s", "--save", action="store_true",
                         help="Save files to directory")
+    parser.add_argument("-p", "--path", type=str, default="images/",
+                        help="Where to save files")
     args = parser.parse_args()
 
     if args.save:
-        print "Saving images in " + args.save
+        save_dir = args.path if args.path else DEFAULT_DIR
+        print "Saving images in " + save_dir
     if args.startUrl is not None:
-        print "starturl is " + args.startUrl
+        print "Starting URL is " + args.startUrl
 
     a = getListOfAll(args.startUrl)
+    print("Parsed all entries.")
 
     if not args.save:
-       for pic in a:
-           prettyPrint(pic)
+       for img in a:
+           prettyPrint(img)
     else:
-        for pic in a:
-            saveImage(img)
-
-    #url = sys.argv[1]
-    #a = getListOfAll(url)
-    #for pic in a:
-    #    print pic
-    #print("Got " + str(len(a)) + " entries.")
-
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        for img in a:
+            saveImage(img, save_dir)
 
