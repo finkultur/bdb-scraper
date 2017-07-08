@@ -5,6 +5,7 @@ import os
 import argparse
 import urllib
 import HTMLParser
+import shutil
 import requests
 import requests_cache
 import simplejson as json
@@ -82,13 +83,12 @@ def save_image(img, folder, save_text=False):
     urllib.urlretrieve(img['url'], path + ".jpg")
     if save_text:
         with open(path + ".txt", 'w') as txtfile:
-            print(img['text'])
             txtfile.write(img['text'])
 
 def login(user, password):
     """ Login to account. Simple POST request. """
     session = requests.Session()
-    print("Got user/pass")
+    print("Using credentials.")
     payload = {'action': 'login',
                'user': user,
                'pass': password,
@@ -110,6 +110,16 @@ def get_number_of_uploads(username):
     data = json.loads(req.content)
     return int(data['imagecount'].split(" ")[2])
 
+def get_user_from_url(url):
+    """ Returns the username from a url """
+    return url.split('/')[2]
+
+def create_zip(starturl, path):
+    """ Creates a zip-file of a directory """
+    info = starturl.split('/')
+    filename = info[3] + '-' + info[4]
+    shutil.make_archive(filename, 'zip', "./", path)
+
 if __name__ == '__main__':
     # Parse command line arguments
     parser = argparse.ArgumentParser()
@@ -120,6 +130,8 @@ if __name__ == '__main__':
                         help="Where to save files. (default = images/)")
     parser.add_argument("-t", "--save-text", action="store_true", default=True,
                         help="Save image text")
+    parser.add_argument("-z", "--create-zip", action="store_true", default=False,
+                        help="Creates a zip archive of downloaded contents")
     parser.add_argument("-u", "--username", type=str,
                         help="Your username")
     parser.add_argument("-p", "--password", type=str,
@@ -154,4 +166,6 @@ if __name__ == '__main__':
         for image in all_images:
             save_image(image, save_dir, args.save_text)
         print("Saved " + str(len(all_images)) + " images to " + save_dir)
+        if args.create_zip:
+            create_zip(args.start_url, save_dir)
 
