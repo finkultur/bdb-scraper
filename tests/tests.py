@@ -3,7 +3,7 @@
 
 import unittest
 import requests
-from scraper import *
+from bdb_scraper import *
 
 class TestStuff(unittest.TestCase):
     def setUp(self):
