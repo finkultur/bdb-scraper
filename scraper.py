@@ -64,6 +64,13 @@ def get_list_of_all(start_url, session):
         nexturl = get_next_url(nexturl, session)
     return arr[:-1] # Skip the last one that is void
 
+def download_all(images, path, save_text=False):
+    """ Downloads all images to path """
+    if not os.path.exists(path):
+        os.makedirs(path)
+    for img in images:
+        save_image(img, path, save_text)
+
 def pretty_print(img):
     """ Very pretty printing. """
     print(img['date'])
@@ -161,10 +168,7 @@ if __name__ == '__main__':
         for image in all_images:
             pretty_print(image)
     else:
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        for image in all_images:
-            save_image(image, save_dir, args.save_text)
+        download_all(all_images, save_dir, args.save_text)
         print("Saved " + str(len(all_images)) + " images to " + save_dir)
         if args.create_zip:
             create_zip(args.start_url, save_dir)
