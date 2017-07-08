@@ -6,6 +6,7 @@ import argparse
 import urllib
 import requests, requests_cache
 import simplejson as json
+import HTMLParser
 
 DEFAULT_DIR = "images/"
 
@@ -25,7 +26,8 @@ def get_img(url, session):
             data = line[len(search_str):-1]
             json_data = json.loads(data)
             img['url'] = json_data['fullsizeSrc']
-            img['text'] = json_data['strippedText']
+            img['text'] = HTMLParser.HTMLParser().unescape(
+                          json_data['strippedText']).encode("utf-8")
         elif date_str in line:
             date = line[:-2].split('month')[1].split('day') # Sorry not sorry
             month = date[0]
@@ -79,6 +81,7 @@ def save_image(img, folder, save_text=False):
     urllib.urlretrieve(img['url'], path + ".jpg")
     if save_text:
         with open(path + ".txt", 'w') as txtfile:
+            print(img['text'])
             txtfile.write(img['text'])
 
 def login(user, password):

@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: UTF-8 -*-
 
 import unittest
 import requests
@@ -15,7 +16,7 @@ class TestStuff(unittest.TestCase):
 
     def test_image_text(self):
         self.assertEqual(self.img['text'],
-                         "SOLEN SKINER ALLTID P&Aring; PALLBRYT")
+                         "SOLEN SKINER ALLTID PÅ PALLBRYT")
 
     def test_image_date(self):
         self.assertEqual(self.img['date'],
