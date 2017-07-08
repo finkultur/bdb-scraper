@@ -1,6 +1,8 @@
 #!/usr/bin/python
 """ This module scrapes dayviews for images. """
 
+from __future__ import print_function
+
 import os
 import argparse
 import urllib
@@ -95,7 +97,6 @@ def save_image(img, folder, save_text=False):
 def login(user, password):
     """ Login to account. Simple POST request. """
     session = requests.Session()
-    print("Using credentials.")
     payload = {'action': 'login',
                'user': user,
                'pass': password,
@@ -119,23 +120,63 @@ def get_number_of_uploads(username):
 
 def get_user_from_url(url):
     """ Returns the username from a url """
-    return url.split('/')[2]
+    return url.split('/')[3]
 
-def create_zip(starturl, path):
+def make_archive(starturl, path):
     """ Creates a zip-file of a directory """
     info = starturl.split('/')
     filename = info[3] + '-' + info[4]
-    shutil.make_archive(filename, 'zip', "./", path)
+    return shutil.make_archive(filename, 'zip', "./", path)
+
+def scrape(starturl, **kwargs):
+    """ Scrape a diary
+        starturl: E.g. http://dayviews.com/farligast/179081381/
+        Optional arguments:
+           dest: Where to save files (default = images/)
+           save_text: Whether or not to save image description
+           create_zip: Whether or not to create a zip archive
+           username: Your username
+           password: Your password
+    """
+    if 'username' in kwargs and 'password' in kwargs:
+        print("Using credentials.")
+        session = login(kwargs['username'], kwargs['password'])
+    else:
+        session = requests.Session()
+        # The cache messes with the login, so we only use it when anonymous
+        requests_cache.install_cache('bdb_search_cache')
+    if 'dest' in kwargs:
+        save_dir = kwargs['dest']
+    else:
+        save_dir = DEFAULT_DIR
+    if save_dir[-1:] != '/':
+        save_dir += '/'
+    print("Saving images in " + save_dir)
+    if starturl is not None:
+        print("Starting URL is " + starturl)
+    else:
+        exit(1)
+    save_text = 'save_text' in kwargs and kwargs['save_text']
+    create_zip = 'create_zip' in kwargs and kwargs['create_zip']
+    user = get_user_from_url(starturl)
+    num_of_uploads = get_number_of_uploads(user)
+    print(user + " has uploaded " + str(num_of_uploads) + " images")
+    all_images = get_list_of_all(starturl, session)
+    print("Parsed all entries.")
+    download_all(all_images, save_dir, save_text)
+    print("Saved " + str(len(all_images)) + " images to " + save_dir)
+    if create_zip:
+        zipname = make_archive(starturl, save_dir)
+        print("Created zip archive in " + zipname)
+
 
 if __name__ == '__main__':
     # Parse command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("start_url")
-    parser.add_argument("-o", "--only-print", action="store_true",
-                        default=False, help="Only print url/date/text")
     parser.add_argument("-d", "--dest", type=str, default="images/",
                         help="Where to save files. (default = images/)")
-    parser.add_argument("-t", "--save-text", action="store_true", default=True,
+    parser.add_argument("-t", "--save-text", action="store_true", default=False,
                         help="Save image text")
     parser.add_argument("-z", "--create-zip", action="store_true", default=False,
                         help="Creates a zip archive of downloaded contents")
@@ -145,31 +186,10 @@ if __name__ == '__main__':
                         help="Your password")
     args = parser.parse_args()
 
-    # Login
-    if args.username and args.password:
-        session = login(args.username, args.password)
-    else:
-        session = requests.Session()
-        # The cache messes with the login, so we only use it when anonymous
-        requests_cache.install_cache('bdb_search_cache')
-
-    if not args.only_print:
-        save_dir = args.dest if args.dest else DEFAULT_DIR
-        if save_dir[-1:] != '/':
-            save_dir += '/'
-        print "Saving images in " + save_dir
-    if args.start_url is not None:
-        print "Starting URL is " + args.start_url
-
-    all_images = get_list_of_all(args.start_url, session)
-    print("Parsed all entries.")
-
-    if args.only_print:
-        for image in all_images:
-            pretty_print(image)
-    else:
-        download_all(all_images, save_dir, args.save_text)
-        print("Saved " + str(len(all_images)) + " images to " + save_dir)
-        if args.create_zip:
-            create_zip(args.start_url, save_dir)
+    scrape(args.start_url,
+           dest=args.dest,
+           save_text=args.save_text,
+           create_zip=args.create_zip,
+           username=args.username,
+           password=args.password)
 
