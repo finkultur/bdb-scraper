@@ -81,6 +81,22 @@ def save_image(img, folder, save_text=False):
         with open(path + ".txt", 'w') as txtfile:
             txtfile.write(img['text'])
 
+def login(user, password):
+    """ Login to account. Simple POST request. """
+    session = requests.Session()
+    print("Got user/pass")
+    payload = { 'action': 'login',
+                'user': user,
+                'pass': password,
+                'crosslogin': 0,
+                'bdbhdCampaign': 0,
+                'topLoginNoJScript': 0,
+                'ajaxlogin': 1,
+                'doIframeLogin': 0,
+                'json': 1 }
+    session.post("http://dayviews.com/", data=payload)
+    return session
+
 if __name__ == '__main__':
     # Parse command line arguments
     parser = argparse.ArgumentParser()
@@ -98,21 +114,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Login
-    session = requests.Session()
     if args.username and args.password:
-        print("Got user/pass")
-        payload = { 'action': 'login',
-                    'user': args.username,
-                    'pass': args.password,
-                    'crosslogin': 0,
-                    'bdbhdCampaign': 0,
-                    'topLoginNoJScript': 0,
-                    'ajaxlogin': 1,
-                    'doIframeLogin': 0,
-                    'json': 1 }
-        req0 = session.get("http://dayviews.com/")
-        req = session.post("http://dayviews.com/", data=payload)
-    else: # The cache messes with the login, so we only use it when anonymous
+        session = login(args.username, args.password)
+    else:
+        session = requests.Session()
+        # The cache messes with the login, so we only use it when anonymous
         requests_cache.install_cache('bdb_search_cache')
 
     if not args.only_print:
