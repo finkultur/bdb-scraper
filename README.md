@@ -1,30 +1,30 @@
 # bdb-scraper
-Fetches all your public stuff from dayviews/bilddagboken.
+Fetches all your (or someone else's stuff from dayviews/bilddagboken.
 Hurry 'cause it will close 2017-09-01.
 Beware that it could take a while to do this.
 
 ## Prerequisites
-Git, Python2.7, pip
+Git, Python2.7
 
 ## Installation
 ```
-clone repo
-pip install -r requirements.txt
+git clone git@github.com:finkultur/bdb-scraper.git
+sudo python setup.py install
 ```
 
 ## Usage
 ```
-scraper.py [-h] [-o] [-d DEST] [-t] [-u USERNAME] [-p PASSWORD]
-                  start_url
+usage: bdb-scraper [-h] [-d DEST] [-t] [-z] [-u USERNAME] [-p PASSWORD]
+                   start_url
 
 positional arguments:
   start_url
 
 optional arguments:
   -h, --help            show this help message and exit
-  -o, --only-print      Only print url/date/text
   -d DEST, --dest DEST  Where to save files. (default = images/)
   -t, --save-text       Save image text
+  -z, --create-zip      Creates a zip archive of downloaded contents
   -u USERNAME, --username USERNAME
                         Your username
   -p PASSWORD, --password PASSWORD
@@ -32,12 +32,13 @@ optional arguments:
 ```
 
 Go to the starting image of the bilddagbok that you want to fetch and copy the url.
-Then simply do this to fetch both images and descriptions:
+Then simply do this to fetch all images.
 ```
-./scraper.py -t http://dayviews.com/<username>/<id_of_first_image>/
+bdb-scraper http://dayviews.com/<username>/<id_of_first_image>/
 ``` 
-To fetch all simpaons stuff for example, do this (if you're his friend). Or exchange for some other username/id.
+To fetch all simpaons stuff for example, do this (if you're his friend). Or exchange for some other
+username/id. Also creates a zip-archive with images and their descriptions.
 ```
-./scraper.py -t -u <your_username> -p <your_password> http://dayviews.com/farligast/974579/
+bdb-scraper -d save_it_here/ -t -z -u <your_username> -p <your_password> http://dayviews.com/farligast/974579/
 ```
 
