@@ -4,9 +4,10 @@
 import os
 import argparse
 import urllib
-import requests, requests_cache
-import simplejson as json
 import HTMLParser
+import requests
+import requests_cache
+import simplejson as json
 
 DEFAULT_DIR = "images/"
 
@@ -27,7 +28,7 @@ def get_img(url, session):
             json_data = json.loads(data)
             img['url'] = json_data['fullsizeSrc']
             img['text'] = HTMLParser.HTMLParser().unescape(
-                          json_data['strippedText']).encode("utf-8")
+                json_data['strippedText']).encode("utf-8")
         elif date_str in line:
             date = line[:-2].split('month')[1].split('day') # Sorry not sorry
             month = date[0]
@@ -75,7 +76,7 @@ def save_image(img, folder, save_text=False):
     """
     num = 0
     path = folder + img['date'] + '-#' + str(num)
-    while (os.path.isfile(path)):
+    while os.path.isfile(path):
         num += 1
         path = folder + img['date'] + "-#" + str(num)
     urllib.urlretrieve(img['url'], path + ".jpg")
@@ -88,15 +89,16 @@ def login(user, password):
     """ Login to account. Simple POST request. """
     session = requests.Session()
     print("Got user/pass")
-    payload = { 'action': 'login',
-                'user': user,
-                'pass': password,
-                'crosslogin': 0,
-                'bdbhdCampaign': 0,
-                'topLoginNoJScript': 0,
-                'ajaxlogin': 1,
-                'doIframeLogin': 0,
-                'json': 1 }
+    payload = {'action': 'login',
+               'user': user,
+               'pass': password,
+               'crosslogin': 0,
+               'bdbhdCampaign': 0,
+               'topLoginNoJScript': 0,
+               'ajaxlogin': 1,
+               'doIframeLogin': 0,
+               'json': 1
+              }
     session.post("http://dayviews.com/", data=payload)
     return session
 
@@ -112,7 +114,7 @@ if __name__ == '__main__':
     # Parse command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("start_url")
-    parser.add_argument("-o", "--only-print", action="store_true", 
+    parser.add_argument("-o", "--only-print", action="store_true",
                         default=False, help="Only print url/date/text")
     parser.add_argument("-d", "--dest", type=str, default="images/",
                         help="Where to save files. (default = images/)")
@@ -134,7 +136,8 @@ if __name__ == '__main__':
 
     if not args.only_print:
         save_dir = args.dest if args.dest else DEFAULT_DIR
-        if save_dir[-1:] != '/': save_dir += '/'
+        if save_dir[-1:] != '/':
+            save_dir += '/'
         print "Saving images in " + save_dir
     if args.start_url is not None:
         print "Starting URL is " + args.start_url
