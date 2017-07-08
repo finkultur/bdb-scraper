@@ -1,10 +1,9 @@
 #!/usr/bin/python
-""" This module scrapes dayviews for images. """
+""" Module for scraping images from dayviews. """
 
 from __future__ import print_function
 
 import os
-import argparse
 import urllib
 import HTMLParser
 import shutil

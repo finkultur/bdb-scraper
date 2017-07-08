@@ -1,11 +1,13 @@
 #!/usr/bin/python2.7
+""" Command line script for bdb-scraper """
 
 from __future__ import absolute_import
 
-import bdb_scraper
 import argparse
+import bdb_scraper
 
 def main():
+    """ This is the main function. Who knew? """
     # Parse command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("start_url")
