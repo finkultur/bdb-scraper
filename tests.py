@@ -26,6 +26,9 @@ class TestStuff(unittest.TestCase):
         self.assertEqual(get_next_url("http://dayviews.com/finkultur/36850186/",
                          self.session),
                          "http://dayviews.com/finkultur/37715304/")
+
+    def test_get_number_of_uploads(self):
+        self.assertEqual(get_number_of_uploads("janisious"), 3427)
  
 if __name__ == '__main__':
     unittest.main()

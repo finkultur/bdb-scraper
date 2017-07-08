@@ -100,6 +100,14 @@ def login(user, password):
     session.post("http://dayviews.com/", data=payload)
     return session
 
+def get_number_of_uploads(username):
+    """ Returns the number of uploaded images by username """
+    url = "http://dayviews.com/p/ajax.html?action=getUserInfoJSON&username=" \
+          + username + "&onFocus=0&json=1"
+    req = requests.get(url)
+    data = json.loads(req.content)
+    return int(data['imagecount'].split(" ")[2])
+
 if __name__ == '__main__':
     # Parse command line arguments
     parser = argparse.ArgumentParser()
