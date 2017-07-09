@@ -1,10 +1,8 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python3
 """ Command line script for bdb-scraper """
 
-from __future__ import absolute_import
-
 import argparse
-import bdb_scraper
+from bdb_scraper import bdb_scraper
 
 def main():
     """ This is the main function. Who knew? """

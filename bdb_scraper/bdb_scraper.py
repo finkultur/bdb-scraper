@@ -1,11 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 """ Module for scraping images from dayviews. """
 
-from __future__ import print_function
-
 import os
-import urllib
-import HTMLParser
+import urllib.request
+import html.parser
 import shutil
 import requests
 import requests_cache
@@ -24,12 +22,12 @@ def get_img(url, session):
     img = {'url': "", 'date': "", 'text': ""}
     year, month, day = "0", "0", "0"
 
-    for line in req.iter_lines():
+    for line in req.iter_lines(decode_unicode=True):
         if search_str in line:
             data = line[len(search_str):-1]
             json_data = json.loads(data)
             img['url'] = json_data['fullsizeSrc']
-            img['text'] = HTMLParser.HTMLParser().unescape(
+            img['text'] = html.parser.HTMLParser().unescape(
                 json_data['strippedText']).encode("utf-8")
         elif date_str in line:
             date = line[:-2].split('month')[1].split('day') # Sorry not sorry
@@ -48,7 +46,7 @@ def get_next_url(url, session):
     search_str = "class=\"nextDayHref navigationNav icon\">"
     take_next = False
     req = session.get(url, stream=True)
-    for line in req.iter_lines():
+    for line in req.iter_lines(decode_unicode=True):
         if search_str in line:
             take_next = True
         elif take_next is True:
@@ -88,7 +86,7 @@ def save_image(img, folder, save_text=False):
     while os.path.isfile(path):
         num += 1
         path = folder + img['date'] + "-#" + str(num)
-    urllib.urlretrieve(img['url'], path + ".jpg")
+    urllib.request.urlretrieve(img['url'], path + ".jpg")
     if save_text:
         with open(path + ".txt", 'w') as txtfile:
             txtfile.write(img['text'])
