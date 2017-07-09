@@ -15,6 +15,8 @@ def main():
                         help="Save image text")
     parser.add_argument("-z", "--create-zip", action="store_true", default=False,
                         help="Creates a zip archive of downloaded contents")
+    parser.add_argument("-n", "--zip-name", type=str, default='',
+                        help="Name of archive (optional)")
     parser.add_argument("-u", "--username", type=str,
                         help="Your username")
     parser.add_argument("-p", "--password", type=str,
@@ -25,6 +27,7 @@ def main():
                        dest=args.dest,
                        save_text=args.save_text,
                        create_zip=args.create_zip,
+                       zip_name=args.zip_name,
                        username=args.username,
                        password=args.password)
 

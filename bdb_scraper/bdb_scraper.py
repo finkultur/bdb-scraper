@@ -119,10 +119,12 @@ def get_user_from_url(url):
     """ Returns the username from a url """
     return url.split('/')[3]
 
-def make_archive(starturl, path):
+def zip_name_from_url(url):
+    info = url.split('/')
+    return info[3] + '-' + info[4]
+
+def make_archive(starturl, path, filename):
     """ Creates a zip-file of a directory """
-    info = starturl.split('/')
-    filename = info[3] + '-' + info[4]
     return shutil.make_archive(filename, 'zip', "./", path)
 
 def scrape(starturl, **kwargs):
@@ -132,6 +134,7 @@ def scrape(starturl, **kwargs):
            dest: Where to save files (default = images/)
            save_text: Whether or not to save image description
            create_zip: Whether or not to create a zip archive
+           zip_name: Name of archive (optional)
            username: Your username
            password: Your password
     """
@@ -163,6 +166,10 @@ def scrape(starturl, **kwargs):
     download_all(all_images, save_dir, save_text)
     print("Saved " + str(len(all_images)) + " images to " + save_dir)
     if create_zip:
-        zipname = make_archive(starturl, save_dir)
-        print("Created zip archive in " + zipname)
+        if 'zip_name' in kwargs and kwargs['zip_name']:
+            zipname = kwargs['zip_name']
+        else:
+            zipname = zip_name_from_url(starturl)
+        make_archive(starturl, save_dir, zipname)
+        print("Created zip archive " + zipname + ".zip")
 
