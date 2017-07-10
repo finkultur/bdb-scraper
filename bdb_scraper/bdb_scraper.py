@@ -120,6 +120,9 @@ def get_user_from_url(url):
     return url.split('/')[3]
 
 def zip_name_from_url(url):
+    """ Creates a string from a bdb-url.
+        http://dayviews.com/username/12345678/ returns username-12345678
+    """
     info = url.split('/')
     return info[3] + '-' + info[4]
 
