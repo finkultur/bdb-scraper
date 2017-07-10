@@ -88,7 +88,7 @@ def save_image(img, folder, save_text=False):
         path = folder + img['date'] + "-#" + str(num)
     urllib.request.urlretrieve(img['url'], path + ".jpg")
     if save_text:
-        with open(path + ".txt", 'w') as txtfile:
+        with open(path + ".txt", 'wb') as txtfile:
             txtfile.write(img['text'])
 
 def login(user, password):
