@@ -126,10 +126,6 @@ def zip_name_from_url(url):
     info = url.split('/')
     return info[3] + '-' + info[4]
 
-def make_archive(starturl, path, filename):
-    """ Creates a zip-file of a directory """
-    return shutil.make_archive(filename, 'zip', "./", path)
-
 def scrape(starturl, **kwargs):
     """ Scrape a diary
         starturl: E.g. http://dayviews.com/farligast/179081381/
@@ -138,6 +134,7 @@ def scrape(starturl, **kwargs):
            save_text: Whether or not to save image description
            create_zip: Whether or not to create a zip archive
            zip_name: Name of archive (optional)
+           zip_base: basedir to start zipping (defaults to cwd) (optional)
            username: Your username
            password: Your password
     """
@@ -173,6 +170,14 @@ def scrape(starturl, **kwargs):
             zipname = kwargs['zip_name']
         else:
             zipname = zip_name_from_url(starturl)
-        make_archive(starturl, save_dir, zipname)
+        if 'zip_base' in kwargs and kwargs['zip_base']:
+            zipbase = kwargs['zip_base']
+            if save_dir.startswith(zipbase):
+                save_dir = save_dir[len(zipbase):]
+            else:
+                exit(2)
+        else:
+            zipbase = None
+        shutil.make_archive(zipname, 'zip', zipbase, save_dir)
         print("Created zip archive " + zipname + ".zip")
 
