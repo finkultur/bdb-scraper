@@ -10,57 +10,51 @@ import requests_cache
 import simplejson as json
 
 DEFAULT_DIR = "images/"
+SEARCH_STR = "var currentFullsizeImage = "
+DATE_STR = "var thisDate = "
+YEAR_STR = "var thisYear = "
+NEXT_URL_STR = "class=\"nextDayHref navigationNav icon\">"
 
 def get_img(url, session):
     """ Parses an url into a dict.
-        Retrieves image url, date and image text.
+        Retrieves image url, date, image text and url to the next image.
      """
-    search_str = "var currentFullsizeImage = "
-    date_str = "var thisDate = "
-    year_str = "var thisYear = "
     req = session.get(url, stream=True)
-    img = {'url': "", 'date': "", 'text': ""}
+    img = {'url': "", 'date': "", 'text': "", 'next_url': None}
     year, month, day = "0", "0", "0"
 
+    next_is_url = False
     for line in req.iter_lines(decode_unicode=True):
-        if search_str in line:
-            data = line[len(search_str):-1]
+        if SEARCH_STR in line:
+            data = line[len(SEARCH_STR):-1]
             json_data = json.loads(data)
             img['url'] = json_data['fullsizeSrc']
             img['text'] = html.parser.HTMLParser().unescape(
                 json_data['strippedText']).encode("utf-8")
-        elif date_str in line:
+        elif DATE_STR in line:
             date = line[:-2].split('month')[1].split('day') # Sorry not sorry
             month = date[0]
             day = date[1]
-        elif year_str in line:
+        elif YEAR_STR in line:
             # Will not work after year 9999.
             # Fortunately, dayviews closes sometime in 2017.
             year = line[-6:-2]
-
-    img['date'] = year + "-" + month + "-" + day
+            img['date'] = year + "-" + month + "-" + day
+        elif next_is_url:
+            img['next_url'] = line.split("\"")[1]
+            break
+        elif NEXT_URL_STR in line:
+            next_is_url = True
     return img
-
-def get_next_url(url, session):
-    """ Parses url for the next image """
-    search_str = "class=\"nextDayHref navigationNav icon\">"
-    take_next = False
-    req = session.get(url, stream=True)
-    for line in req.iter_lines(decode_unicode=True):
-        if search_str in line:
-            take_next = True
-        elif take_next is True:
-            return line.split("\"")[1]
-    return None
 
 def get_list_of_all(start_url, session):
     """ Returns a list with all images, starting at start_url. """
     arr = []
     arr.append(get_img(start_url, session))
-    nexturl = get_next_url(start_url, session)
-    while nexturl is not None:
-        arr.append(get_img(nexturl, session))
-        nexturl = get_next_url(nexturl, session)
+    i = 0
+    while arr[i]['next_url'] is not None:
+        arr.append(get_img(arr[i]['next_url'], session))
+        i += 1
     return arr[:-1] # Skip the last one that is void
 
 def download_all(images, path, save_text=False):
