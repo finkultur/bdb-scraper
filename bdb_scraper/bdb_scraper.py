@@ -112,7 +112,8 @@ def zip_name_from_url(url):
     info = url.split('/')
     return info[3] + '-' + info[4]
 
-def scrape(starturl, **kwargs):
+def scrape(starturl, dest='images/', save_text=True, create_zip=True,
+           zip_name=None, zip_base=None, username=None, password=None):
     """ Scrape a diary
         starturl: E.g. http://dayviews.com/farligast/179081381/
         Optional arguments:
@@ -124,46 +125,38 @@ def scrape(starturl, **kwargs):
            username: Your username
            password: Your password
     """
-    if 'username' in kwargs and 'password' in kwargs:
+    if starturl:
+        print("Starting URL is " + starturl)
+    else:
+        exit(1) # Pretty important with a starturl
+    if not dest:
+        dest = DEFAULT_DIR
+    if dest[-1:] != '/':
+        dest += '/' # Add trailing slash if there isn't one
+    print("Saving images in " + dest)
+    if username and password:
         print("Using credentials.")
-        session = login(kwargs['username'], kwargs['password'])
+        session = login(username, password)
     else:
         session = requests.Session()
         # The cache messes with the login, so we only use it when anonymous
         requests_cache.install_cache('bdb_search_cache')
-    if 'dest' in kwargs:
-        save_dir = kwargs['dest']
-    else:
-        save_dir = DEFAULT_DIR
-    if save_dir[-1:] != '/':
-        save_dir += '/'
-    print("Saving images in " + save_dir)
-    if starturl is not None:
-        print("Starting URL is " + starturl)
-    else:
-        exit(1)
-    save_text = 'save_text' in kwargs and kwargs['save_text']
-    create_zip = 'create_zip' in kwargs and kwargs['create_zip']
+
     user = get_user_from_url(starturl)
     num_of_uploads = get_number_of_uploads(user)
-    print(user + " has uploaded " + str(num_of_uploads) + " images")
+    print(user + " has uploaded " + str(num_of_uploads) + " images in total.")
     all_images = get_list_of_all(starturl, session)
     print("Parsed all entries.")
-    download_all(all_images, save_dir, save_text)
-    print("Saved " + str(len(all_images)) + " images to " + save_dir)
+    download_all(all_images, dest, save_text)
+    print("Saved " + str(len(all_images)) + " images to " + dest)
     if create_zip:
-        if 'zip_name' in kwargs and kwargs['zip_name']:
-            zipname = kwargs['zip_name']
-        else:
-            zipname = zip_name_from_url(starturl)
-        if 'zip_base' in kwargs and kwargs['zip_base']:
-            zipbase = kwargs['zip_base']
-            if save_dir.startswith(zipbase):
-                save_dir = save_dir[len(zipbase):]
+        if not zip_name:
+            zip_name = zip_name_from_url(starturl)
+        if zip_base:
+            if dest.startswith(zip_base):
+                dest = dest[len(zip_base):]
             else:
                 exit(2)
-        else:
-            zipbase = None
-        shutil.make_archive(zipname, 'zip', zipbase, save_dir)
-        print("Created zip archive " + zipname + ".zip")
+        shutil.make_archive(zip_name, 'zip', zip_base, dest)
+        print("Created zip archive " + zip_name + ".zip")
 
