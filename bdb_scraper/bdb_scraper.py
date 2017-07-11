@@ -63,13 +63,6 @@ def download_all(images, path, save_text=False):
     for img in images:
         save_image(img, path, save_text)
 
-def pretty_print(img):
-    """ Very pretty printing. """
-    print(img['date'])
-    print(img['url'])
-    print(img['text'])
-    print("\n")
-
 def save_image(img, folder, save_text=False):
     """ Saves an image to disk.
         Filename is on the form YYYY-MM-DD[-#N].jpg
