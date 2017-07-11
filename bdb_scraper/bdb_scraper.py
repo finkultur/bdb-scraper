@@ -29,8 +29,7 @@ def get_img(url, session):
             data = line[len(SEARCH_STR):-1]
             json_data = json.loads(data)
             img['url'] = json_data['fullsizeSrc']
-            img['text'] = html.parser.HTMLParser().unescape(
-                json_data['strippedText']).encode("utf-8")
+            img['text'] = html.unescape(json_data['strippedText']).encode("utf-8")
         elif DATE_STR in line:
             date = line[:-2].split('month')[1].split('day') # Sorry not sorry
             month = date[0]
