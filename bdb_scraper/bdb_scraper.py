@@ -139,8 +139,6 @@ def scrape(starturl, dest='images/', save_text=True, create_zip=True,
         session = login(username, password)
     else:
         session = requests.Session()
-        # The cache messes with the login, so we only use it when anonymous
-        requests_cache.install_cache('bdb_search_cache')
 
     user = get_user_from_url(starturl)
     num_of_uploads = get_number_of_uploads(user)
