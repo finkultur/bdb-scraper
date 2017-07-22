@@ -3,12 +3,18 @@
 
 import unittest
 import requests
+import os
+import shutil
 from bdb_scraper import *
 
 class test_anonymous(unittest.TestCase):
     def setUp(self):
         self.session = requests.Session()
         self.img = get_img("http://dayviews.com/finkultur/195730454/", self.session)
+        self.folder = "tests_tmp/"
+        if os.path.exists(self.folder):
+            shutil.rmtree(self.folder)
+        os.makedirs(self.folder)
 
     def test_image_url(self):
         self.assertEqual(self.img['url'],
@@ -26,7 +32,36 @@ class test_anonymous(unittest.TestCase):
     def test_get_number_of_uploads(self):
         self.assertEqual(get_number_of_uploads("janisious"), 3427)
 
+    def test_get_list_of_all_length(self):
+        arr = get_list_of_all("http://dayviews.com/nilsheterjag/394939606/", self.session)
+        self.assertEqual(len(arr), 3)
+        arr2 = get_list_of_all("http://dayviews.com/nilsheterjag/390790559/", self.session)
+        self.assertEqual(len(arr2), 14)
+
+    def test_download_all(self):
+        folder = self.folder + "download_all/"
+        arr = get_list_of_all("http://dayviews.com/nilsheterjag/394939606/", self.session)
+        download_all(arr, folder)
+        num_of_files = len(os.listdir(folder))
+        self.assertEqual(num_of_files, 3)
+
+    def test_download_all_many(self):
+        folder = self.folder + "download_all_many/"
+        arr = get_list_of_all("http://dayviews.com/nilsheterjag/393684875/", self.session)
+        download_all(arr, folder)
+        num_of_files = len(os.listdir(folder))
+        self.assertEqual(num_of_files, 10)
+
+    def test_save_image(self):
+        img = get_img("http://dayviews.com/nilsheterjag/395480047/", self.session)
+        folder = self.folder + "save_image_test/"
+        os.makedirs(folder)
+        save_image(img, folder)
+        num_of_files = len(os.listdir(folder))
+        self.assertEqual(num_of_files, 1)
+
     def tearDown(self):
+        shutil.rmtree(self.folder)
         pass
  
 class test_logged_in(unittest.TestCase):
