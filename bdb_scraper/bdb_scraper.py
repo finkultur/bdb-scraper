@@ -39,7 +39,7 @@ def get_img(url, session):
             # Will not work after year 9999.
             # Fortunately, dayviews closes sometime in 2017.
             year = line[-6:-2]
-            img['date'] = year + "-" + month + "-" + day
+            img['date'] = year + "-" + month.zfill(2) + "-" + day.zfill(2)
         elif next_is_url:
             img['next_url'] = line.split("\"")[1]
             break
