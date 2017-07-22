@@ -68,11 +68,11 @@ def save_image(img, folder, save_text=False):
         Filename is on the form YYYY-MM-DD[-#N].jpg
     """
     num = 0
-    path = folder + img['date'] + '-#' + str(num)
+    path = folder + img['date'] + '-#' + str(num) + ".jpg"
     while os.path.isfile(path):
         num += 1
-        path = folder + img['date'] + "-#" + str(num)
-    urllib.request.urlretrieve(img['url'], path + ".jpg")
+        path = folder + img['date'] + "-#" + str(num) + ".jpg"
+    urllib.request.urlretrieve(img['url'], path)
     if save_text:
         with open(path + ".txt", 'wb') as txtfile:
             txtfile.write(img['text'])
