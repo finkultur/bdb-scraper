@@ -69,19 +69,22 @@ def save_image(img, folder, save_text=False):
         Filename is on the form YYYY-MM-DD[-#N].jpg
         If save_text is true, save image description as separate .txt-file.
         If an error occurs while retrieving the image, that error is written to
-        a .error.txt-file.
+        an .error-file.
     """
     num = 0
-    path = folder + img['date'] + '-#' + str(num) + ".jpg"
-    while os.path.isfile(path):
+    path = folder + img['date'] + '-#' + str(num)
+    # If image (or error) already exists, up the number
+    while os.path.isfile(path + ".jpg") or os.path.isfile(path + ".error"):
         num += 1
-        path = folder + img['date'] + "-#" + str(num) + ".jpg"
+        path = folder + img['date'] + "-#" + str(num)
+    # Nailed our filename, lets get the actual file
     try:
-        urllib.request.urlretrieve(img['url'], path)
+        urllib.request.urlretrieve(img['url'], path + ".jpg")
     except urllib.error.HTTPError as e:
         with open(path + ".error.txt", 'w') as efile:
             efile.write("Something went wrong retrieving this file.\n")
             efile.write(str(e.code) + ": " + e.reason)
+    # If save_text, write image description
     if save_text:
         with open(path + ".txt", 'wb') as txtfile:
             txtfile.write(img['text'])
