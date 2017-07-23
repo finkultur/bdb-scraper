@@ -81,7 +81,7 @@ def save_image(img, folder, save_text=False):
     try:
         urllib.request.urlretrieve(img['url'], path + ".jpg")
     except urllib.error.HTTPError as e:
-        with open(path + ".error.txt", 'w') as efile:
+        with open(path + ".error", 'w') as efile:
             efile.write("Something went wrong retrieving this file.\n")
             efile.write(str(e.code) + ": " + e.reason)
     # If save_text, write image description
