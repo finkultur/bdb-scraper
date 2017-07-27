@@ -24,7 +24,7 @@ class test_anonymous(unittest.TestCase):
         self.assertEqual(self.img['text'], "SOLEN SKINER ALLTID PÅ PALLBRYT".encode("utf-8"))
 
     def test_image_date(self):
-        self.assertEqual(self.img['date'], "2008-4-19")
+        self.assertEqual(self.img['date'], "2008-04-19")
 
     def test_next_url(self):
         self.assertEqual(self.img['next_url'], "http://dayviews.com/finkultur/195731292/")
@@ -82,7 +82,7 @@ class test_logged_in(unittest.TestCase):
                          .encode("utf-8"))
 
     def test_image_date(self):
-        self.assertEqual(self.img['date'], "2008-3-12")
+        self.assertEqual(self.img['date'], "2008-03-12")
 
     def test_next_url(self):
         self.assertEqual(self.img['next_url'], "http://dayviews.com/farligast/179005838/")
