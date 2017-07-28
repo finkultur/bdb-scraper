@@ -4,12 +4,12 @@ Hurry 'cause it will close 2017-09-01.
 Beware that it could take a while to do this.
 
 ## Prerequisites
-Git, Python2.7
+Git, Python3.5, pip
 
 ## Installation
 ```
 git clone git@github.com:finkultur/bdb-scraper.git
-sudo python setup.py install
+sudo pip3 install -r bdb-scraper/
 ```
 
 ## Usage
