@@ -9,7 +9,7 @@ Git, Python3.5, pip
 ## Installation
 ```
 git clone git@github.com:finkultur/bdb-scraper.git
-sudo pip3 install -r bdb-scraper/
+sudo pip3 install -e bdb-scraper/
 ```
 
 ## Usage
